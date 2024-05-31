@@ -16,7 +16,6 @@
 package com.google.android.libraries.mapsplatform.secrets_gradle_plugin
 
 import com.android.build.api.variant.Variant
-import com.android.build.gradle.internal.core.InternalBaseVariant
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.FileNotFoundException
@@ -47,6 +46,14 @@ class SecretsPlugin : Plugin<Project> {
                     project.rootProject.loadPropertiesFile(it)
                 }
 
+                val runtimeProperties = if (extension.inlineProperties.isNotEmpty()) {
+                    Properties().apply {
+                        extension.inlineProperties.forEach { (key, value) ->
+                            setProperty(key, value)
+                        }
+                    }
+                } else null
+
                 val properties: Properties? = try {
                     project.rootProject.loadPropertiesFile(
                         extension.propertiesFileName
@@ -54,7 +61,7 @@ class SecretsPlugin : Plugin<Project> {
                 } catch (e: FileNotFoundException) {
                     defaultProperties ?: throw e
                 }
-                generateConfigKey(project, extension, defaultProperties, properties, variant)
+                generateConfigKey(project, extension, defaultProperties, properties, runtimeProperties, variant)
             }
         }
     }
@@ -64,6 +71,7 @@ class SecretsPlugin : Plugin<Project> {
         extension: SecretsPluginExtension,
         defaultProperties: Properties?,
         properties: Properties?,
+        runtimeProperties : Properties?,
         variant: Variant
     ) {
         // Inject defaults first
@@ -73,6 +81,10 @@ class SecretsPlugin : Plugin<Project> {
 
         properties?.let {
             variant.inject(properties, extension.ignoreList)
+        }
+
+        runtimeProperties?.let {
+            variant.inject(it, extension.ignoreList)
         }
 
         // Inject build-type specific properties
