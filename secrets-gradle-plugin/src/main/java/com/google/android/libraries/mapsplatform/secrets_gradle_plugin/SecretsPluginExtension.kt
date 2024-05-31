@@ -36,7 +36,7 @@ open class SecretsPluginExtension {
     /**
      * Properties to be loaded at injection time. Overrides default and properties file.
      */
-    var inlineProperties: MutableList<Pair<String, String>> = mutableListOf()
+    var inlineProperties: MutableMap<String, String> = mutableMapOf()
 
     companion object {
         const val defaultPropertiesFile = "local.properties"
