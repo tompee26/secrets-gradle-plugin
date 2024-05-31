@@ -44,7 +44,7 @@ gradlePlugin {
 
 publishing {
     publications {
-        create<MavenPublication>("mavenPub") {
+        create<MavenPublication>("gpr") {
             group = PluginInfo.group
             artifactId = PluginInfo.artifactId
             version = PluginInfo.version
@@ -55,8 +55,8 @@ publishing {
                 url.set(PluginInfo.url)
 
                 scm {
-                    connection.set("scm:git@github.com:google/secrets-gradle-plugin.git")
-                    developerConnection.set("scm:git@github.com:google/secrets-gradle-plugin.git")
+                    connection.set("scm:git@github.com:tompee26/secrets-gradle-plugin.git")
+                    developerConnection.set("scm:git@github.com:tompee26/secrets-gradle-plugin.git")
                     url.set(PluginInfo.url)
                 }
 
@@ -73,10 +73,12 @@ publishing {
                     url.set("https://developers.google.com/maps")
                 }
 
-
                 developers {
                     developer {
                         name.set("Google Inc.")
+                    }
+                    developer {
+                        name.set("Tompee")
                     }
                 }
             }
@@ -84,10 +86,13 @@ publishing {
     }
     repositories {
         maven {
-            name = "localPluginRepository"
-            url = uri("build/repository")
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/tompee26/secrets-gradle-plugin")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
-        mavenLocal()
     }
 }
 
@@ -96,14 +101,22 @@ project(":secrets-gradle-plugin") {
 }
 
 object PluginInfo {
-    const val artifactId =
-        "com.google.android.libraries.mapsplatform.secrets-gradle-plugin.gradle.plugin"
+    const val artifactId = "secrets-gradle-plugin"
     const val description = "A Gradle plugin for providing secrets securely to an Android project."
     const val displayName = "Secrets Gradle Plugin for Android"
-    const val group = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin"
+    const val group = "com.tompee.secrets-gradle-plugin"
     const val implementationClass =
         "com.google.android.libraries.mapsplatform.secrets_gradle_plugin.SecretsPlugin"
     const val name = "secretsGradlePlugin"
-    const val url = "https://github.com/google/secrets-gradle-plugin"
-    const val version = "2.0.2"
+    const val url = "https://github.com/tompee26/secrets-gradle-plugin"
+    val version get() = System.getenv("PUBLISH_VERSION")
+}
+
+task("publishPluginsToGitHub") {
+    group = "publishing"
+    description = "Publishes the plugins to GitHub Packages"
+    dependsOn(
+        "publishPluginMavenPublicationToGitHubPackagesRepository",
+        "publishSecretsGradlePluginPluginMarkerMavenPublicationToGitHubPackagesRepository"
+    )
 }
