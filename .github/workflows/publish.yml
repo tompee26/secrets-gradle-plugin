@@ -30,7 +30,7 @@ jobs:
       - name: Publish package
         uses: gradle/gradle-build-action@932abbbe1322c8a76c4fb3b7d277bf831e757a40
         with:
-          arguments: ":secrets-gradle-plugin:publishToGitHub"
+          arguments: ":secrets-gradle-plugin:publishPluginsToGitHub"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUBLISH_VERSION: ${{ github.event.inputs.version }}
